@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block titulo %}Ofertas{% endblock %}
+{% block contenido %}
+<h1>Ofertas</h1>
+
+<div class="tarjeta">
+  <form method="post" action="/ofertas">
+    <div class="fila">
+      <div>
+        <label for="licitacion_id">Licitación</label>
+        <select id="licitacion_id" name="licitacion_id" required>
+          <option value="">— Seleccione —</option>
+          {% for l in licitaciones %}
+          <option value="{{ l.id }}" {% if form and form.licitacion_id == l.id|string %}selected{% endif %}>
+            {{ l.codigo }} · {{ l.titulo }} ({{ l.estado }})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="proveedor_id">Proveedor</label>
+        <select id="proveedor_id" name="proveedor_id" required>
+          <option value="">— Seleccione —</option>
+          {% for p in proveedores %}
+          <option value="{{ p.id }}" {% if form and form.proveedor_id == p.id|string %}selected{% endif %}>{{ p.nombre }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="monto_crc">Monto (CRC)</label>
+        <input id="monto_crc" name="monto_crc" inputmode="decimal" placeholder="9000000.00"
+               value="{{ form.monto_crc if form else '' }}" required>
+      </div>
+    </div>
+    <button class="primario" type="submit">Registrar oferta</button>
+  </form>
+</div>
+
+<form method="get" action="/ofertas" class="acciones" style="margin-bottom:12px;">
+  <label for="filtro" style="margin:0;">Filtrar por licitación:</label>
+  <select id="filtro" name="licitacion_id" style="width:auto;" onchange="this.form.submit()">
+    <option value="">Todas</option>
+    {% for l in licitaciones %}
+    <option value="{{ l.id }}" {% if filtro_licitacion == l.id %}selected{% endif %}>{{ l.codigo }}</option>
+    {% endfor %}
+  </select>
+</form>
+
+{% if ofertas %}
+<table>
+  <thead><tr><th>Licitación</th><th>Proveedor</th><th>Monto (CRC)</th><th>Registrada</th><th></th></tr></thead>
+  <tbody>
+  {% for o in ofertas %}
+    <tr>
+      <td>{{ o.licitacion.codigo }}</td>
+      <td>{{ o.proveedor.nombre }}</td>
+      <td class="num">{{ "{:,.2f}".format(o.monto_crc) }}</td>
+      <td>{{ o.registrada_en.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+      <td>
+        <form method="post" action="/ofertas/{{ o.id }}/eliminar" onsubmit="return confirm('¿Retirar esta oferta?');">
+          <button class="link-btn" type="submit">Retirar</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vacio">No hay ofertas registradas.</p>
+{% endif %}
+{% endblock %}

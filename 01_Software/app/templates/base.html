@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}Licitaciones{% endblock %} · Sistema de Gestión de Licitaciones</title>
+  <style>
+    :root { --azul:#0b4f8a; --gris:#f3f5f8; --borde:#d3dbe4; --rojo:#b3261e; --verde:#1e7a3c; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, Arial, sans-serif; color:#1d1d1f; background:#fff; }
+    header { background:var(--azul); color:#fff; padding:10px 24px; display:flex; align-items:center; gap:24px; }
+    header strong { font-size:1.05rem; }
+    header nav a { color:#fff; text-decoration:none; margin-right:16px; opacity:.9; }
+    header nav a:hover { opacity:1; text-decoration:underline; }
+    header form { margin-left:auto; }
+    header button { background:transparent; color:#fff; border:1px solid #fff8; padding:4px 10px; border-radius:4px; cursor:pointer; }
+    main { max-width:960px; margin:24px auto; padding:0 24px; }
+    h1 { font-size:1.4rem; margin:0 0 16px; }
+    .tarjeta { background:var(--gris); border:1px solid var(--borde); border-radius:6px; padding:16px; margin-bottom:20px; }
+    label { display:block; font-weight:600; margin:8px 0 4px; }
+    input, select { width:100%; padding:8px; border:1px solid var(--borde); border-radius:4px; font-size:1rem; }
+    .fila { display:flex; gap:12px; } .fila > div { flex:1; }
+    button.primario { margin-top:12px; background:var(--azul); color:#fff; border:0; padding:9px 16px; border-radius:4px; font-size:1rem; cursor:pointer; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { text-align:left; padding:8px; border-bottom:1px solid var(--borde); }
+    th { background:var(--gris); }
+    td.num { text-align:right; font-variant-numeric: tabular-nums; }
+    .msg { padding:10px 12px; border-radius:4px; margin-bottom:16px; }
+    .msg.ok { background:#e6f4ea; color:var(--verde); }
+    .msg.error { background:#fce8e6; color:var(--rojo); }
+    .acciones { display:flex; gap:8px; align-items:center; }
+    .acciones form { margin:0; }
+    .link-btn { background:none; border:0; color:var(--rojo); cursor:pointer; padding:0; font-size:.95rem; }
+    .vacio { color:#666; font-style:italic; }
+  </style>
+</head>
+<body>
+  <header>
+    <strong>Licitaciones</strong>
+    {% if usuario %}
+    <nav>
+      <a href="/proveedores">Proveedores</a>
+      <a href="/ofertas">Ofertas</a>
+      {# Persona B agrega aquí: Licitaciones, Evaluación, Tipo de cambio #}
+    </nav>
+    <form method="post" action="/logout"><button type="submit">Salir ({{ usuario.usuario }})</button></form>
+    {% endif %}
+  </header>
+  <main>
+    {% if flash %}<div class="msg {{ flash.tipo }}" role="status">{{ flash.mensaje }}</div>{% endif %}
+    {% if error %}<div class="msg error" role="alert">{{ error }}</div>{% endif %}
+    {% block contenido %}{% endblock %}
+  </main>
+</body>
+</html>
