@@ -13,7 +13,7 @@ from fastapi.responses import JSONResponse, PlainTextResponse
 from starlette.middleware.sessions import SessionMiddleware
 
 from app.database import init_db
-from app.routers import api, web
+from app.routers import api, api_licitaciones, web, web_licitaciones
 from app.services.errores import ErrorNegocio
 
 log = logging.getLogger("licitaciones")
@@ -33,7 +33,9 @@ def crear_app() -> FastAPI:
     app.add_middleware(SessionMiddleware, secret_key=clave, same_site="lax", https_only=False)
 
     app.include_router(api.router)
+    app.include_router(api_licitaciones.router)
     app.include_router(web.router)
+    app.include_router(web_licitaciones.router)
 
     # ---------- Manejo controlado de errores (REQ-012) ----------
     @app.exception_handler(ErrorNegocio)

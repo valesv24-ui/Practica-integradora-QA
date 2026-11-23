@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block titulo %}Licitaciones{% endblock %}
+{% block contenido %}
+<h1>Licitaciones</h1>
+
+<div class="tarjeta">
+  <form method="post" action="/licitaciones">
+    <div class="fila">
+      <div>
+        <label for="codigo">Código</label>
+        <input id="codigo" name="codigo" placeholder="LIC-2026-001" value="{{ form.codigo if form else '' }}" required>
+      </div>
+      <div>
+        <label for="titulo">Título</label>
+        <input id="titulo" name="titulo" value="{{ form.titulo if form else '' }}" required>
+      </div>
+    </div>
+    <div class="fila">
+      <div>
+        <label for="presupuesto_crc">Presupuesto (CRC)</label>
+        <input id="presupuesto_crc" name="presupuesto_crc" inputmode="decimal" placeholder="10000000.00"
+               value="{{ form.presupuesto_crc if form else '' }}" required>
+      </div>
+      <div>
+        <label for="cierre">Cierre (fecha y hora)</label>
+        <input id="cierre" name="cierre" type="datetime-local" value="{{ form.cierre if form else '' }}" required>
+      </div>
+    </div>
+    <button class="primario" type="submit">Registrar licitación</button>
+  </form>
+</div>
+
+{% if licitaciones %}
+<table>
+  <thead><tr><th>Código</th><th>Título</th><th>Presupuesto (CRC)</th><th>Cierre</th><th>Estado</th><th></th></tr></thead>
+  <tbody>
+  {% for l in licitaciones %}
+    <tr>
+      <td>{{ l.codigo }}</td>
+      <td>{{ l.titulo }}</td>
+      <td class="num">{{ "{:,.2f}".format(l.presupuesto_crc) }}</td>
+      <td>{{ l.cierre.strftime("%Y-%m-%d %H:%M") }}</td>
+      <td>{{ l.estado }}</td>
+      <td>
+        <div class="acciones">
+          {% if l.estado == "Borrador" %}
+          <a href="/licitaciones/{{ l.id }}/editar">Editar</a>
+          <form method="post" action="/licitaciones/{{ l.id }}/publicar"><button class="link-btn" style="color:var(--azul)" type="submit">Publicar</button></form>
+          {% endif %}
+          {% if l.estado != "Cerrada" %}
+          <form method="post" action="/licitaciones/{{ l.id }}/cerrar" onsubmit="return confirm('¿Cerrar esta licitación? No se puede reabrir.');"><button class="link-btn" type="submit">Cerrar</button></form>
+          {% endif %}
+          {% if l.estado == "Borrador" %}
+          <form method="post" action="/licitaciones/{{ l.id }}/eliminar" onsubmit="return confirm('¿Eliminar esta licitación?');"><button class="link-btn" type="submit">Eliminar</button></form>
+          {% endif %}
+        </div>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vacio">No hay licitaciones registradas.</p>
+{% endif %}
+{% endblock %}

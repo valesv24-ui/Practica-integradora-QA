@@ -1,6 +1,6 @@
 # Sistema de Gestión de Licitaciones
 
-Práctica Integradora de QA · **ISW-622 Pruebas de Software** · Grupo 02
+Práctica Integradora de QA · **ISW-622 Pruebas de Software** · Grupo SC-02
 Universidad Técnica Nacional (UTN) · Sede Regional de San Carlos · Ingeniería del Software
 
 Aplicación web local para gestionar proveedores, licitaciones y ofertas, desarrollada con apoyo de IA y sometida a un ciclo completo de aseguramiento de la calidad (plan, ejecución, defectos, informe y registro de uso de IA).
@@ -66,7 +66,7 @@ Todos los comandos se ejecutan dentro de `01_Software/`.
    pip install -r requirements.txt
    ```
 4. **Configurar la base de datos:** no requiere migraciones; las tablas se crean solas al arrancar. Para usar otro archivo, definir `DATABASE_URL` (p. ej. `sqlite:///data/otra.db`).
-5. **Cargar datos de prueba (seed):** `python -m scripts.demo_licitacion` (temporal: L1 publicada, P1 y P2; Persona B lo reemplaza por el seed completo).
+5. **Cargar datos de prueba (seed):** `python -m scripts.seed` (idempotente: P1, P2, L1 con sus ofertas, escenarios aislados y tipo de cambio 500).
 6. **Ejecutar la aplicación:**
    ```bash
    uvicorn app.main:app --reload
@@ -89,13 +89,17 @@ Todos los datos son sintéticos y reproducibles mediante el script de semilla. N
 | Tipo de cambio | CRC 500,00 por USD (P1 se visualiza como USD 18 000,00) |
 | Escenarios aislados | Presupuesto CRC 1 000 000,00 con ofertas de 900 000 / 950 000 / 1 000 000 |
 
-Para reiniciar los datos: detener la aplicación, borrar `01_Software/data/licitaciones.db` y volver a cargar el seed.
+Para reiniciar los datos: `python -m scripts.seed --reset` (borra proveedores, licitaciones, ofertas y tipos de cambio, conserva los usuarios y vuelve a cargar el seed).
+
+Escenarios aislados (presupuesto CRC 1 000 000): `ESC-AHORRO-10` (oferta 900 000), `ESC-AHORRO-05` (950 000), `ESC-AHORRO-00` (1 000 000) y `ESC-SIN-OFERTAS` (sin ofertas).
 
 ## Pruebas
 
 - **Pruebas automatizadas (unitarias e integración/API):** dentro de `01_Software/`, ejecutar `pytest`. Por tipo: `pytest -m unitaria`, `pytest -m api`, `pytest -m seguridad`. Reporte para evidencias: `pytest --junitxml=reportes/pytest.xml`. Las pruebas usan una BD temporal y no modifican `data/licitaciones.db`.
 - **Pruebas de API:** colección de Postman en _ruta por definir_
 - **Rendimiento:** plan de JMeter en _ruta por definir_ (5 usuarios virtuales, 30 s, solo sobre `localhost` y datos sintéticos)
+
+Variables de entorno opcionales: `TIPO_CAMBIO_URL` (servicio externo; debe devolver JSON con el campo `venta`).
 
 Pruebas automatizadas de Persona A:
 
@@ -107,6 +111,20 @@ Pruebas automatizadas de Persona A:
 | `tests/api/test_api_ofertas.py` | CP-005, CP-010 | REQ-011, REQ-005, REQ-004 |
 | `tests/seguridad/test_seguridad.py` | CP-008, CP-009 | REQ-012 |
 
+Pruebas automatizadas de Persona B:
+
+| Archivo (en `01_Software/`) | CP | REQ |
+|---|---|---|
+| `tests/unit/test_evaluacion_ahorro.py` | CP-011 | REQ-008 |
+| `tests/unit/test_aprobador.py` | CP-012 | REQ-009 |
+| `tests/unit/test_conversion.py` | CP-013 | REQ-010 |
+| `tests/api/test_api_licitaciones.py` | CP-014, CP-020 (parte API), RSK-001 | REQ-002, REQ-011, REQ-010 |
+| `tests/api/test_persistencia.py` | CP-015 | REQ-011 |
+| `tests/funcional/test_licitaciones_funcional.py` | CP-016, CP-017 | REQ-003, REQ-007, REQ-008, REQ-009, REQ-010 |
+| `tests/unit/test_licitaciones_reglas.py` | CP-016 (reglas), CP-020 | REQ-002, REQ-003 |
+
+Los CP-018 (usabilidad) y CP-019 (rendimiento con JMeter) se ejecutan manualmente y se documentan en el registro QA.
+
 Mínimos de la práctica: 14 REQ, 20 casos de prueba (CP), ≥ 23 ejecuciones (RUN), ≥ 8 pruebas automatizadas, 1 defecto controlado (BUG-001), ≥ 3 riesgos y ≥ 3 intervenciones de IA registradas.
 
 ## Estructura del repositorio
@@ -115,11 +133,11 @@ Mínimos de la práctica: 14 REQ, 20 casos de prueba (CP), ≥ 23 ejecuciones (R
 .
 ├── 01_Software/        Código fuente, configuración y datos semilla
 │   ├── app/            main.py, database.py, models.py, security.py
-│   │   ├── services/   Reglas de negocio (proveedores, ofertas, ...)
-│   │   ├── routers/    api.py (JSON) y web.py (HTML)
+│   │   ├── services/   Reglas de negocio (proveedores, ofertas, licitaciones, evaluación, tipo de cambio)
+│   │   ├── routers/    api.py y api_licitaciones.py (JSON); web.py y web_licitaciones.py (HTML)
 │   │   └── templates/  Vistas Jinja
-│   ├── scripts/        crear_usuario, datos semilla
-│   ├── tests/          unit / api / seguridad
+│   ├── scripts/        crear_usuario, seed (datos semilla)
+│   ├── tests/          unit / api / funcional / seguridad
 │   └── data/           BD local SQLite (ignorada por Git)
 ├── 02_Plan_Informe_QA/ Plan e informe de pruebas (Word y PDF)
 ├── 03_Registro_QA/     Registro QA/SQA (Excel)
@@ -143,7 +161,23 @@ Todas las rutas requieren sesión: primero `POST /api/login` con `{"usuario": ".
 | POST | `/api/ofertas` | Registrar (`{"licitacion_id", "proveedor_id", "monto_crc"}`) |
 | DELETE | `/api/ofertas/{id}` | Retirar (solo con la licitación abierta) |
 
-Códigos: `201` creado · `401` sin sesión · `404` no existe · `409` duplicado · `422` dato inválido · `500` error interno sin traza.
+Códigos: `201` creado · `401` sin sesión · `404` no existe · `409` duplicado o estado incompatible · `422` dato inválido · `503` servicio externo no disponible · `500` error interno sin traza.
+
+### API HTTP (Licitaciones, Evaluación y Tipo de cambio)
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| GET | `/api/licitaciones` · `/api/licitaciones/{id}` | Listar / consultar |
+| POST | `/api/licitaciones` | Registrar en Borrador (`{"codigo", "titulo", "presupuesto_crc", "cierre"}`) |
+| PUT | `/api/licitaciones/{id}` | Editar (solo en Borrador) |
+| DELETE | `/api/licitaciones/{id}` | Eliminar (solo en Borrador y sin ofertas) |
+| POST | `/api/licitaciones/{id}/publicar` · `/cerrar` | Borrador → Publicada/Cerrada, Publicada → Cerrada |
+| GET | `/api/licitaciones/{id}/evaluacion?moneda=CRC\|USD` | Mejor oferta, ahorro, clasificación y aprobador (`USD` solo cambia la vista) |
+| GET | `/api/tipo-cambio` | Tasa vigente (409 si no hay ninguna) |
+| POST | `/api/tipo-cambio` | Configurar la tasa (`{"crc_por_usd": "500"}`, debe ser > 0) |
+| POST | `/api/tipo-cambio/sincronizar` | Consultar el servicio externo (503 si falla) |
+
+Interfaz web: `/licitaciones`, `/evaluacion` y `/tipo-cambio`.
 
 ## Flujo de trabajo con Git
 

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Tipo de cambio{% endblock %}
+{% block contenido %}
+<h1>Tipo de cambio (CRC por USD)</h1>
+
+<div class="tarjeta">
+  {% if actual %}
+  <p><strong>Vigente:</strong> ₡{{ "{:,.4f}".format(actual.crc_por_usd) }} por USD · {{ actual.fecha.strftime("%Y-%m-%d %H:%M") }} ({{ actual.fuente }})</p>
+  {% else %}
+  <p class="vacio">Aún no hay tipo de cambio configurado.</p>
+  {% endif %}
+  <form method="post" action="/tipo-cambio">
+    <label for="crc_por_usd">Nueva tasa (colones por dólar)</label>
+    <input id="crc_por_usd" name="crc_por_usd" inputmode="decimal" placeholder="500.00" value="{{ valor or '' }}" required>
+    <button class="primario" type="submit">Guardar tasa</button>
+  </form>
+  <form method="post" action="/tipo-cambio/sincronizar" style="margin-top:8px;">
+    <button class="primario" type="submit">Consultar servicio externo</button>
+  </form>
+</div>
+
+{% if historial %}
+<table>
+  <thead><tr><th>Fecha</th><th>CRC por USD</th><th>Fuente</th></tr></thead>
+  <tbody>
+  {% for t in historial %}
+    <tr><td>{{ t.fecha.strftime("%Y-%m-%d %H:%M") }}</td><td class="num">{{ "{:,.4f}".format(t.crc_por_usd) }}</td><td>{{ t.fuente }}</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+{% endblock %}
