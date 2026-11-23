@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}Proveedores{% endblock %}
+{% block contenido %}
+<h1>Proveedores</h1>
+
+<div class="tarjeta">
+  <form method="post" action="/proveedores">
+    <label for="nombre">Nombre del proveedor</label>
+    <input id="nombre" name="nombre" maxlength="120" value="{{ valor or '' }}"
+           placeholder="Ej.: Tecnología Norte S.A." required>
+    <small>Se admiten letras, números, espacios, punto, coma y paréntesis.</small><br>
+    <button class="primario" type="submit">Registrar proveedor</button>
+  </form>
+</div>
+
+{% if proveedores %}
+<table>
+  <thead><tr><th>ID</th><th>Nombre</th><th>Acciones</th></tr></thead>
+  <tbody>
+  {% for p in proveedores %}
+    <tr>
+      <td>{{ p.id }}</td>
+      <td>{{ p.nombre }}</td>
+      <td class="acciones">
+        <a href="/proveedores/{{ p.id }}/editar">Editar</a>
+        <form method="post" action="/proveedores/{{ p.id }}/eliminar"
+              onsubmit="return confirm('¿Eliminar este proveedor?');">
+          <button class="link-btn" type="submit">Eliminar</button>
+        </form>
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="vacio">No hay proveedores registrados.</p>
+{% endif %}
+{% endblock %}

@@ -39,32 +39,42 @@ Los requisitos verificables (REQ-001 a REQ-014) provienen del enunciado y se tra
 
 ## Tecnologías
 
-> _Por definir por el equipo antes de programar. Completar esta sección con la opción elegida._
-
 | Componente | Elección |
 |---|---|
-| Lenguaje y framework | _Por definir_ (ruta .NET / ASP.NET Core o alternativa Python con FastAPI/Flask) |
-| Base de datos | _Por definir_ (SQLite o PostgreSQL) |
-| Interfaz web | _Por definir_ |
-| Pruebas automatizadas | _Por definir_ (xUnit/NUnit/MSTest o pytest) |
+| Lenguaje y framework | Python 3.10+ con FastAPI |
+| Base de datos | SQLite (archivo local `01_Software/data/licitaciones.db`) con SQLAlchemy 2 |
+| Interfaz web | Plantillas HTML con Jinja2 (servidas por FastAPI) |
+| Pruebas automatizadas | pytest (unitarias, integración/API y seguridad) |
 | Pruebas de API | Postman |
 | Pruebas de rendimiento | JMeter |
 
 ## Instalación y ejecución
 
-> _Se completará cuando se defina el stack. Debe incluir los comandos exactos de cada paso._
+Todos los comandos se ejecutan dentro de `01_Software/`.
 
-1. **Requisitos previos:** _por definir_
+1. **Requisitos previos:** Python 3.10 o superior y Git.
 2. **Clonar el repositorio:**
    ```bash
-   git clone <URL-del-repositorio>
-   cd <carpeta-del-repositorio>
+   git clone https://github.com/valesv24-ui/Practica-integradora-QA.git
+   cd Practica-integradora-QA/01_Software
    ```
-3. **Instalar dependencias:** _por definir_
-4. **Configurar la base de datos y aplicar migraciones:** _por definir_
-5. **Cargar datos de prueba (seed):** _por definir_
-6. **Ejecutar la aplicación:** _por definir_
-7. **Usuarios de prueba:** _por definir (solo credenciales ficticias; no publicar contraseñas reales)_
+3. **Instalar dependencias:**
+   ```bash
+   python -m venv .venv
+   .venv\Scripts\activate          # Windows
+   # source .venv/bin/activate     # Linux / macOS
+   pip install -r requirements.txt
+   ```
+4. **Configurar la base de datos:** no requiere migraciones; las tablas se crean solas al arrancar. Para usar otro archivo, definir `DATABASE_URL` (p. ej. `sqlite:///data/otra.db`).
+5. **Cargar datos de prueba (seed):** `python -m scripts.demo_licitacion` (temporal: L1 publicada, P1 y P2; Persona B lo reemplaza por el seed completo).
+6. **Ejecutar la aplicación:**
+   ```bash
+   uvicorn app.main:app --reload
+   ```
+   Interfaz web: http://127.0.0.1:8000 · Documentación de la API (Swagger): http://127.0.0.1:8000/docs
+7. **Usuarios de prueba:** se crean localmente con `python -m scripts.crear_usuario <usuario>` (la contraseña se pide por teclado y no se guarda en el repositorio).
+
+Opcional: definir `SECRET_KEY` para que las sesiones sobrevivan a un reinicio del servidor.
 
 ## Datos de prueba
 
@@ -79,31 +89,61 @@ Todos los datos son sintéticos y reproducibles mediante el script de semilla. N
 | Tipo de cambio | CRC 500,00 por USD (P1 se visualiza como USD 18 000,00) |
 | Escenarios aislados | Presupuesto CRC 1 000 000,00 con ofertas de 900 000 / 950 000 / 1 000 000 |
 
-Para reiniciar los datos: _por definir (comando del script de reseteo)_.
+Para reiniciar los datos: detener la aplicación, borrar `01_Software/data/licitaciones.db` y volver a cargar el seed.
 
 ## Pruebas
 
-> _Completar con los comandos reales al definir el stack._
-
-- **Pruebas automatizadas (unitarias e integración/API):** _comando por definir_
+- **Pruebas automatizadas (unitarias e integración/API):** dentro de `01_Software/`, ejecutar `pytest`. Por tipo: `pytest -m unitaria`, `pytest -m api`, `pytest -m seguridad`. Reporte para evidencias: `pytest --junitxml=reportes/pytest.xml`. Las pruebas usan una BD temporal y no modifican `data/licitaciones.db`.
 - **Pruebas de API:** colección de Postman en _ruta por definir_
 - **Rendimiento:** plan de JMeter en _ruta por definir_ (5 usuarios virtuales, 30 s, solo sobre `localhost` y datos sintéticos)
+
+Pruebas automatizadas de Persona A:
+
+| Archivo (en `01_Software/`) | CP | REQ |
+|---|---|---|
+| `tests/unit/test_proveedores.py` | CP-001 | REQ-001 |
+| `tests/unit/test_ofertas_reglas.py` | CP-002, CP-003 | REQ-005, REQ-004 |
+| `tests/unit/test_ofertas_duplicadas.py` | CP-004 | REQ-006 |
+| `tests/api/test_api_ofertas.py` | CP-005, CP-010 | REQ-011, REQ-005, REQ-004 |
+| `tests/seguridad/test_seguridad.py` | CP-008, CP-009 | REQ-012 |
 
 Mínimos de la práctica: 14 REQ, 20 casos de prueba (CP), ≥ 23 ejecuciones (RUN), ≥ 8 pruebas automatizadas, 1 defecto controlado (BUG-001), ≥ 3 riesgos y ≥ 3 intervenciones de IA registradas.
 
 ## Estructura del repositorio
 
-> _Ajustar a la estructura real del proyecto._
-
 ```
 .
-├── 01_Software/        Código fuente, configuración de ejemplo, migraciones y datos semilla
+├── 01_Software/        Código fuente, configuración y datos semilla
+│   ├── app/            main.py, database.py, models.py, security.py
+│   │   ├── services/   Reglas de negocio (proveedores, ofertas, ...)
+│   │   ├── routers/    api.py (JSON) y web.py (HTML)
+│   │   └── templates/  Vistas Jinja
+│   ├── scripts/        crear_usuario, datos semilla
+│   ├── tests/          unit / api / seguridad
+│   └── data/           BD local SQLite (ignorada por Git)
 ├── 02_Plan_Informe_QA/ Plan e informe de pruebas (Word y PDF)
 ├── 03_Registro_QA/     Registro QA/SQA (Excel)
 ├── 04_Evidencias/      Salidas reales de pruebas, capturas, logs y reportes (nombradas con ID EV-###)
 ├── 05_IA/              Prompts y respuestas saneadas, versión utilizada y cambios humanos (IA-###)
 └── README.md
 ```
+
+### API HTTP (Proveedores, Ofertas y autenticación)
+
+Todas las rutas requieren sesión: primero `POST /api/login` con `{"usuario": "...", "password": "..."}`.
+
+| Método | Ruta | Descripción |
+|---|---|---|
+| POST | `/api/login` · `/api/logout` | Iniciar / cerrar sesión |
+| GET | `/api/proveedores` · `/api/proveedores/{id}` | Listar / consultar |
+| POST | `/api/proveedores` | Registrar (`{"nombre": "..."}`) |
+| PUT | `/api/proveedores/{id}` | Editar |
+| DELETE | `/api/proveedores/{id}` | Eliminar (solo sin ofertas) |
+| GET | `/api/ofertas?licitacion_id=&proveedor_id=` | Listar con filtros |
+| POST | `/api/ofertas` | Registrar (`{"licitacion_id", "proveedor_id", "monto_crc"}`) |
+| DELETE | `/api/ofertas/{id}` | Retirar (solo con la licitación abierta) |
+
+Códigos: `201` creado · `401` sin sesión · `404` no existe · `409` duplicado · `422` dato inválido · `500` error interno sin traza.
 
 ## Flujo de trabajo con Git
 

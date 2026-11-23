@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block titulo %}Editar proveedor{% endblock %}
+{% block contenido %}
+<h1>Editar proveedor #{{ proveedor.id }}</h1>
+<div class="tarjeta">
+  <form method="post" action="/proveedores/{{ proveedor.id }}/editar">
+    <label for="nombre">Nombre del proveedor</label>
+    <input id="nombre" name="nombre" maxlength="120" value="{{ valor or '' }}" required>
+    <button class="primario" type="submit">Guardar cambios</button>
+    <a href="/proveedores" style="margin-left:12px;">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
