@@ -1,9 +1,9 @@
 """Modelos de datos.
 
 Persona A (Valery): Usuario, Proveedor, Oferta.
-Persona B (Maykel): Licitacion y TipoCambio. Licitacion se deja aquí con los
-campos mínimos que necesita Ofertas; Maykel la completa con sus reglas
-(REQ-002, REQ-003) sin cambiar los nombres de columnas.
+Persona B (Maykel): Licitacion y TipoCambio. Los nombres de columnas de
+Licitacion no cambiaron; las reglas (REQ-002, REQ-003) viven en
+app/services/reglas_licitaciones.py.
 """
 from datetime import datetime
 from decimal import Decimal
@@ -12,10 +12,7 @@ from sqlalchemy import DateTime, ForeignKey, Integer, Numeric, String, UniqueCon
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.database import Base
-
-ESTADO_BORRADOR = "Borrador"
-ESTADO_PUBLICADA = "Publicada"
-ESTADO_CERRADA = "Cerrada"
+from app.services.reglas_licitaciones import ESTADO_BORRADOR, ESTADO_CERRADA, ESTADO_PUBLICADA  # noqa: F401
 
 
 class Usuario(Base):
@@ -50,6 +47,16 @@ class Licitacion(Base):
     estado: Mapped[str] = mapped_column(String(20), nullable=False, default=ESTADO_BORRADOR)
 
     ofertas: Mapped[list["Oferta"]] = relationship(back_populates="licitacion")
+
+
+class TipoCambio(Base):
+    """Tasa CRC por USD con su fecha (historial). Solo sirve para mostrar USD (REQ-010)."""
+    __tablename__ = "tipos_cambio"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    crc_por_usd: Mapped[Decimal] = mapped_column(Numeric(12, 4), nullable=False)
+    fecha: Mapped[datetime] = mapped_column(DateTime, nullable=False)
+    fuente: Mapped[str] = mapped_column(String(20), nullable=False, default="manual")
 
 
 class Oferta(Base):

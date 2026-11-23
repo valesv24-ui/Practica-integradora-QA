@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block titulo %}Evaluación{% endblock %}
+{% block contenido %}
+<h1>Evaluación de licitaciones</h1>
+
+<div class="tarjeta">
+  <form method="get" action="/evaluacion">
+    <div class="fila">
+      <div>
+        <label for="licitacion_id">Licitación</label>
+        <select id="licitacion_id" name="licitacion_id" required>
+          <option value="">— Seleccione —</option>
+          {% for l in licitaciones %}
+          <option value="{{ l.id }}" {% if licitacion_id == l.id %}selected{% endif %}>{{ l.codigo }} · {{ l.titulo }} ({{ l.estado }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="moneda">Mostrar importes en</label>
+        <select id="moneda" name="moneda">
+          <option value="CRC" {% if moneda == "CRC" %}selected{% endif %}>Colones (CRC)</option>
+          <option value="USD" {% if moneda == "USD" %}selected{% endif %}>Dólares (USD)</option>
+        </select>
+      </div>
+    </div>
+    <button class="primario" type="submit">Evaluar</button>
+  </form>
+</div>
+
+{% if resultado %}
+<table>
+  <tr><th>Licitación</th><td>{{ resultado.codigo }} · {{ resultado.titulo }} ({{ resultado.estado }})</td></tr>
+  <tr><th>Presupuesto ({{ resultado.moneda }})</th><td class="num">{{ resultado.presupuesto }}</td></tr>
+  <tr><th>Ofertas válidas</th><td>{{ resultado.total_ofertas }}</td></tr>
+  {% if resultado.mejor_oferta %}
+  <tr><th>Mejor oferta</th><td>{{ resultado.mejor_oferta.proveedor }} · {{ resultado.moneda }} {{ resultado.mejor_oferta.monto }}</td></tr>
+  <tr><th>Ahorro</th><td>{{ resultado.moneda }} {{ resultado.ahorro }} ({{ resultado.ahorro_porcentaje }} %)</td></tr>
+  <tr><th>Clasificación</th><td>{{ resultado.clasificacion }}</td></tr>
+  <tr><th>Aprobador</th><td>{{ resultado.aprobador }}</td></tr>
+  {% else %}
+  <tr><th>Resultado</th><td>{{ resultado.resultado }}</td></tr>
+  {% endif %}
+  {% if resultado.tipo_cambio %}
+  <tr><th>Tipo de cambio usado</th><td>₡{{ resultado.tipo_cambio.crc_por_usd }} por USD · registrado el {{ resultado.tipo_cambio.fecha[:16].replace("T", " ") }}</td></tr>
+  {% endif %}
+</table>
+<p class="vacio">Los importes se guardan siempre en colones; la vista en dólares no modifica la base de datos.</p>
+{% endif %}
+{% endblock %}
