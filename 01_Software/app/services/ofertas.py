@@ -39,7 +39,7 @@ def validar_plazo(estado: str, cierre: datetime, ahora: datetime) -> None:
     """
     if estado != ESTADO_PUBLICADA:
         raise ReglaNegocio(f"Solo se aceptan ofertas en licitaciones Publicadas (estado actual: {estado}).")
-    if ahora >= cierre:
+    if ahora > cierre:  # BUG-001 (defecto inducido): deberia ser >=
         raise ReglaNegocio("La licitación ya cerró: no se aceptan ofertas en o después de la hora de cierre.")
 
 
