@@ -97,7 +97,8 @@ Escenarios aislados (presupuesto CRC 1 000 000): `ESC-AHORRO-10` (oferta 900 000
 
 - **Pruebas automatizadas (unitarias e integración/API):** dentro de `01_Software/`, ejecutar `pytest`. Por tipo: `pytest -m unitaria`, `pytest -m api`, `pytest -m seguridad`. Reporte para evidencias: `pytest --junitxml=reportes/pytest.xml`. Las pruebas usan una BD temporal y no modifican `data/licitaciones.db`.
 - **Pruebas de API:** colección de Postman en _ruta por definir_
-- **Rendimiento:** plan de JMeter en _ruta por definir_ (5 usuarios virtuales, 30 s, solo sobre `localhost` y datos sintéticos)
+- **Rendimiento (CP-019):** plan de JMeter en `01_Software/rendimiento/lista_licitaciones.jmx` (5 usuarios virtuales, 30 s, solo sobre `localhost` y datos sintéticos). Instrucciones de ejecución y de medición de CPU/RAM en `01_Software/rendimiento/README.md`; resumen del `.jtl` con `python -m scripts.resumen_jtl <archivo.jtl>`.
+- **Usabilidad (CP-018):** guion y registro de la sesión en `04_Evidencias/CP-018_usabilidad/registro_sesion.md`.
 
 Variables de entorno opcionales: `TIPO_CAMBIO_URL` (servicio externo; debe devolver JSON con el campo `venta`).
 
@@ -123,7 +124,7 @@ Pruebas automatizadas de Persona B:
 | `tests/funcional/test_licitaciones_funcional.py` | CP-016, CP-017 | REQ-003, REQ-007, REQ-008, REQ-009, REQ-010 |
 | `tests/unit/test_licitaciones_reglas.py` | CP-016 (reglas), CP-020 | REQ-002, REQ-003 |
 
-Los CP-018 (usabilidad) y CP-019 (rendimiento con JMeter) se ejecutan manualmente y se documentan en el registro QA.
+Los CP-018 (usabilidad) y CP-019 (rendimiento con JMeter) se ejecutan manualmente; sus guiones están en `04_Evidencias/CP-018_usabilidad/` y `01_Software/rendimiento/`, y los resultados se documentan en el registro QA.
 
 Mínimos de la práctica: 14 REQ, 20 casos de prueba (CP), ≥ 23 ejecuciones (RUN), ≥ 8 pruebas automatizadas, 1 defecto controlado (BUG-001), ≥ 3 riesgos y ≥ 3 intervenciones de IA registradas.
 
@@ -136,7 +137,8 @@ Mínimos de la práctica: 14 REQ, 20 casos de prueba (CP), ≥ 23 ejecuciones (R
 │   │   ├── services/   Reglas de negocio (proveedores, ofertas, licitaciones, evaluación, tipo de cambio)
 │   │   ├── routers/    api.py y api_licitaciones.py (JSON); web.py y web_licitaciones.py (HTML)
 │   │   └── templates/  Vistas Jinja
-│   ├── scripts/        crear_usuario, seed (datos semilla)
+│   ├── scripts/        crear_usuario, seed (datos semilla), resumen_jtl (resumen de JMeter)
+│   ├── rendimiento/    Plan JMeter (CP-019) e instrucciones
 │   ├── tests/          unit / api / funcional / seguridad
 │   └── data/           BD local SQLite (ignorada por Git)
 ├── 02_Plan_Informe_QA/ Plan e informe de pruebas (Word y PDF)
