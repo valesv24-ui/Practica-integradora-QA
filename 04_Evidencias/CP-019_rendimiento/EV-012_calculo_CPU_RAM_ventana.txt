@@ -1,0 +1,9 @@
+CP-019 / RUN-019 · CPU y RAM dentro de la ventana de carga
+Fuente: cpu_ram.csv (typeperf, 1 lectura por segundo). Ventana de carga de JMeter: 2026-11-26 18:20:54 a 18:21:24 (hora local, UTC-6).
+Salida real del cálculo ejecutado por el equipo (PowerShell):
+
+Lecturas en la ventana: 31
+CPU prom: 16,5 %  máx: 27,2 %
+RAM disp. mín: 6677 MB
+
+Nota: el archivo completo abarca 18:20:49 a 18:21:47; solo se usaron las lecturas dentro de la ventana de carga.

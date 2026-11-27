@@ -123,6 +123,7 @@ Pruebas automatizadas de Persona B:
 | `tests/api/test_persistencia.py` | CP-015 | REQ-011 |
 | `tests/funcional/test_licitaciones_funcional.py` | CP-016, CP-017 | REQ-003, REQ-007, REQ-008, REQ-009, REQ-010 |
 | `tests/unit/test_licitaciones_reglas.py` | CP-016 (reglas), CP-020 | REQ-002, REQ-003 |
+| `tests/regresion/test_regresion_bug001.py` | Retest y regresión de BUG-001 | REQ-004, REQ-005, REQ-006, REQ-007 |
 
 Los CP-018 (usabilidad) y CP-019 (rendimiento con JMeter) se ejecutan manualmente; sus guiones están en `04_Evidencias/CP-018_usabilidad/` y `01_Software/rendimiento/`, y los resultados se documentan en el registro QA.
 
