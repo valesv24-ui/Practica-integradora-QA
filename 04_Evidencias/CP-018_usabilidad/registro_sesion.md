@@ -46,6 +46,6 @@ Evidencia: capturas de T1, T2 y T4 en esta carpeta (EV-010). No hay captura de T
 - Mejoras sugeridas: ninguna anotada.
 
 ## Después de la sesión
-- [ ] Pasar los datos a la hoja `14_Usabilidad` del Excel y al Word B3 (mismas cifras).
+- [x] Pasar los datos a la hoja `14_Usabilidad` del Excel y al Word B3 (mismas cifras): UX-001 a UX-004 y B3 registran 4 de 4 tareas sin ayuda y los mismos tiempos estimados.
 - [x] Guardar este archivo lleno y las capturas como evidencia EV-010.
-- [ ] Reiniciar los datos con `python -m scripts.seed --reset`.
+- [ ] Reiniciar los datos con `python -m scripts.seed --reset`: no se dejó constancia de que se hiciera. La sesión usó su propia base `cp018.db`, por lo que no afecta a `data/licitaciones.db` ni a otras pruebas.

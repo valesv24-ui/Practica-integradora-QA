@@ -96,7 +96,7 @@ Escenarios aislados (presupuesto CRC 1 000 000): `ESC-AHORRO-10` (oferta 900 000
 ## Pruebas
 
 - **Pruebas automatizadas (unitarias e integración/API):** dentro de `01_Software/`, ejecutar `pytest`. Por tipo: `pytest -m unitaria`, `pytest -m api`, `pytest -m seguridad`. Reporte para evidencias: `pytest --junitxml=reportes/pytest.xml`. Las pruebas usan una BD temporal y no modifican `data/licitaciones.db`.
-- **Pruebas de API:** colección de Postman en _ruta por definir_
+- **Pruebas de API:** colección de Postman en [`01_Software/postman/licitaciones.postman_collection.json`](01_Software/postman/licitaciones.postman_collection.json) (Postman 12.38.6; 5 solicitudes con aserciones: login 200, listado 200, alta 201, duplicado 409 y nombre inválido 422). Ejecución del 2026-11-27: 5 de 5 pasan (evidencia EV-014). La colección usa las variables `{{base_url}}`, `{{usuario}}` y `{{password}}` del entorno de Postman, que no se versiona; con la aplicación en marcha (`uvicorn app.main:app`) y un usuario de prueba, defínelas en un entorno propio y ejecuta la colección con el Runner.
 - **Rendimiento (CP-019):** plan de JMeter en `01_Software/rendimiento/lista_licitaciones.jmx` (5 usuarios virtuales, 30 s, solo sobre `localhost` y datos sintéticos). Instrucciones de ejecución y de medición de CPU/RAM en `01_Software/rendimiento/README.md`; resumen del `.jtl` con `python -m scripts.resumen_jtl <archivo.jtl>`.
 - **Usabilidad (CP-018):** guion y registro de la sesión en `04_Evidencias/CP-018_usabilidad/registro_sesion.md`.
 
